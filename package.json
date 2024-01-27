@@ -10,6 +10,14 @@
   "license": "MIT",
   "packageManager": "pnpm@8.15.0",
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240117.0",
     "wrangler": "^3.25.0"
+  },
+  "dependencies": {
+    "@resvg/resvg-wasm": "2.4.0",
+    "@types/react": "^18.2.48",
+    "react": "^18.2.0",
+    "satori": "^0.10.11",
+    "yoga-wasm-web": "^0.3.3"
   }
 }
