@@ -55,6 +55,7 @@ const handler: ExportedHandlerFetchHandler<Env> = async (req, env, ctx) => {
     return new Response(await cache.arrayBuffer(), {
       headers: {
         "content-type": "image/png",
+        "cache-control": "public, max-age=31536000, immutable",
       },
     });
   }
@@ -80,6 +81,7 @@ const handler: ExportedHandlerFetchHandler<Env> = async (req, env, ctx) => {
   return new Response(png, {
     headers: {
       "content-type": "image/png",
+      "cache-control": "public, max-age=31536000, immutable",
     },
   });
 };
