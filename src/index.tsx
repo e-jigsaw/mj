@@ -44,6 +44,9 @@ export default {
     const matches = [...pathname.matchAll(/[\_\=v]?[0-9][mpsz]/g)].map(
       ([val]) => val
     );
+    if (matches.length === 0) {
+      return new Response("Not Found", { status: 404 });
+    }
     const size = piesSize(matches);
     const svg = await satori(
       <div style={{ display: "flex", alignItems: "flex-end" }}>
