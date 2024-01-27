@@ -1,0 +1,12 @@
+{
+  "name": "mj",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jigsaw<m@jgs.me>",
+  "license": "MIT",
+  "packageManager": "pnpm@8.10.5"
+}
