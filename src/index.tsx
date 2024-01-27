@@ -34,41 +34,56 @@ const piesSize = (matches: string[]) => {
   return { width, height };
 };
 
-export default {
-  async fetch(request: Request) {
-    const url = new URL(request.url);
-    const { pathname } = url;
-    if (pathname === "/favicon.ico") {
-      return fetch("https://mji.jgs.me/0m.png");
-    }
-    const matches = [...pathname.matchAll(/[\_\=v]?[0-9][mpsz]/g)].map(
-      ([val]) => val
-    );
-    if (matches.length === 0) {
-      return new Response("Not Found", { status: 404 });
-    }
-    const size = piesSize(matches);
-    const svg = await satori(
-      <div style={{ display: "flex", alignItems: "flex-end" }}>
-        {matches.map((val, index) => {
-          const { width, height } = pieSize(val);
-          return (
-            <img
-              key={`${val}-${index}`}
-              src={`https://mji.jgs.me/${val}.png`}
-              width={width}
-              height={height}
-            ></img>
-          );
-        })}
-      </div>,
-      { width: size.width, height: size.height, fonts: [] }
-    );
-    const png = new Resvg(svg).render().asPng();
-    return new Response(png, {
+export interface Env {
+  R2: R2Bucket;
+}
+
+const handler: ExportedHandlerFetchHandler<Env> = async (req, env, ctx) => {
+  const url = new URL(req.url);
+  const { pathname } = url;
+  if (pathname === "/favicon.ico") {
+    return fetch("https://mji.jgs.me/0m.png");
+  }
+  const matches = [...pathname.matchAll(/[\_\=v]?[0-9][mpsz]/g)].map(
+    ([val]) => val
+  );
+  if (matches.length === 0) {
+    return new Response("Not Found", { status: 404 });
+  }
+  const cache = await env.R2.get(`${matches.join("")}.png`);
+  if (cache) {
+    return new Response(await cache.arrayBuffer(), {
       headers: {
         "content-type": "image/png",
       },
     });
-  },
+  }
+  const size = piesSize(matches);
+  const svg = await satori(
+    <div style={{ display: "flex", alignItems: "flex-end" }}>
+      {matches.map((val, index) => {
+        const { width, height } = pieSize(val);
+        return (
+          <img
+            key={`${val}-${index}`}
+            src={`https://mji.jgs.me/${val}.png`}
+            width={width}
+            height={height}
+          ></img>
+        );
+      })}
+    </div>,
+    { width: size.width, height: size.height, fonts: [] }
+  );
+  const png = new Resvg(svg).render().asPng();
+  ctx.waitUntil(env.R2.put(`${matches.join("")}.png`, png));
+  return new Response(png, {
+    headers: {
+      "content-type": "image/png",
+    },
+  });
+};
+
+export default {
+  fetch: handler,
 };
