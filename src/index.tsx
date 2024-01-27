@@ -52,10 +52,11 @@ const handler: ExportedHandlerFetchHandler<Env> = async (req, env, ctx) => {
   }
   const cache = await env.R2.get(`${matches.join("")}.png`);
   if (cache) {
-    return new Response(await cache.arrayBuffer(), {
+    return new Response(cache.body, {
       headers: {
         "content-type": "image/png",
         "cache-control": "public, max-age=31536000, immutable",
+        etag: cache.etag,
       },
     });
   }
